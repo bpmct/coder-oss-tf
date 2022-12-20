@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "coder_version" {
-  default = "0.12.7"
+  default = "0.13.5"
 }
 # Multiple replicas is an enterprise feature:
 # https://coder.com/trial
