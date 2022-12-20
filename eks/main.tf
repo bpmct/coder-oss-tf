@@ -8,7 +8,7 @@ terraform {
 }
 
 variable "coder_version" {
-  default = "0.12.7"
+  default = "0.13.5"
 }
 # Multiple replicas is an enterprise feature:
 # https://coder.com/trial
@@ -165,8 +165,8 @@ resource "helm_release" "coder" {
   namespace = kubernetes_namespace.coder_namespace.metadata.0.name
 
   # When v0.13.5 is released, we can unfork the repo
-  # chart      = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
-  chart = "./helm"
+  chart = "https://github.com/coder/coder/releases/download/v${var.coder_version}/coder_helm_${var.coder_version}.tgz"
+  # chart = "./helm"
 
   values = [
     <<EOT
