@@ -20,9 +20,11 @@ variable "coder_replicas" {
   type    = number
   default = 1
 }
-variable "enable_autopilot" {
-  type    = bool
-  default = true
+# Concurrent workspace operations 
+# (e.g. create, start stop) per replica
+variable "coder_provisioner_daemons" {
+  type    = number
+  default = 50
 }
 # Set these if autopilot is disabled
 variable "machine_type" {
@@ -64,17 +66,12 @@ resource "google_container_cluster" "primary" {
     enabled = true
   }
 
-  # Allow GKE to manage nodes on your behalf
-  enable_autopilot = var.enable_autopilot
-  # Otherwise, set up a node pool
-  remove_default_node_pool = var.enable_autopilot ? null : true
-  initial_node_count       = var.enable_autopilot ? null : 1
+  # Set up a node pool
+  remove_default_node_pool = true
+  initial_node_count       = 1
 }
 
 resource "google_container_node_pool" "primary_preemptible_nodes" {
-
-  # Only create a seperate node pool if autopilot is disabled
-  count = var.enable_autopilot ? 0 : 1
 
   name     = "coder-node-pool"
   location = "us-central1"
@@ -167,6 +164,8 @@ coder:
       value: "postgres://coder:coder@postgresql.coder.svc.cluster.local:5432/coder?sslmode=disable"
     - name: CODER_AUTO_IMPORT_TEMPLATES
       value: "kubernetes"
+    - name: CODER_PROVISIONER_DAEMONS
+      value: "${var.coder_provisioner_daemons}"
     EOT
   ]
   depends_on = [
